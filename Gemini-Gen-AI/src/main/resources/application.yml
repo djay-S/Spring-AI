@@ -1,0 +1,13 @@
+#Spring docs: https://docs.spring.io/spring-ai/reference/api/chat/google-genai-chat.html
+spring:
+  application:
+    name: Gemini-Gen-AI
+  ai:
+    model:
+      chat: google-genai
+    google:
+      genai:
+        api-key: ${OPEN_AI_API_KEY}
+        chat:
+          options:
+            model: gemini-2.0-flash #default
