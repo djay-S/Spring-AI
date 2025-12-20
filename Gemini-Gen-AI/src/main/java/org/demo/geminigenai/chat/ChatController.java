@@ -1,12 +1,15 @@
 package org.demo.geminigenai.chat;
 
+import org.demo.geminigenai.chat.entity.ActorFilms;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
+import java.util.List;
 
 @RestController
 public class ChatController {
@@ -40,5 +43,21 @@ public class ChatController {
                 .user("What is the current timestamp?")
                 .call()
                 .chatResponse();
+    }
+
+    @GetMapping("/entity")
+    public ActorFilms  getActorFilms() {
+        return chatClient.prompt()
+                .user("Generate the filmography of actors Rajpal Yadav")
+                .call()
+                .entity(ActorFilms.class);
+    }
+
+    @GetMapping("/entities")
+    public List<ActorFilms> getActorFilmsList() {
+        return chatClient.prompt()
+                .user("Generate the filmography of actors Rajpal Yadav, Shahrukh Khan, Akshay Kumar")
+                .call()
+                .entity(new ParameterizedTypeReference<List<ActorFilms>>(){});
     }
 }
