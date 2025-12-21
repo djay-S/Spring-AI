@@ -5,6 +5,7 @@ import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ChatController {
@@ -93,5 +95,42 @@ public class ChatController {
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
                 .responseEntity(ActorFilms.class);
+    }
+
+    /*
+    * `ChatClient` fluent API allows to provide user and system text as templates with variables which are replaced at runtime.
+    * ChatClient uses PromptTemplate class to handle user/system text and replace the variables with values provided at runtime.
+    * By default Spring uses StTemplateRenderer
+    * We can use NoOpTemplateRenderer for cases where no template processing is desired.
+    * */
+    @GetMapping("/promptTemplate")
+    public List<ActorFilms> getActorFilmsByPromptTemplate() {
+        return chatClient.prompt()
+                .user(u -> u
+                        .text("Generate top 5 films of actors {actor}")
+//                        .param("actor", "Rajpal Yadav")
+//                                .param("actor", List.of("Rajpal Yadav", "Shahrukh Khan")))
+                                .params(Map.of("actor", List.of("Rajpal Yadav", "Shahrukh Khan")))
+)
+                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
+                .call()
+                .entity(new ParameterizedTypeReference<>(){});
+    }
+
+    /*
+    * We can provide custom Template renderer by implementing the `TemplateRenderer` interface
+    * We can configure StTemplateRenderer using its builder() method
+    * */
+    @GetMapping("/promptTemplate/custom")
+    public List<ActorFilms> getActorFilmsByPromptTemplateCustom() {
+        return chatClient.prompt()
+                .user(u -> u
+                        .text("Generate top 5 films of actors <actor>")
+                        .param("actor", List.of("Rajpal Yadav", "Shahrukh Khan"))
+                )
+                .templateRenderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
+                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
+                .call()
+                .entity(new ParameterizedTypeReference<>(){});
     }
 }
