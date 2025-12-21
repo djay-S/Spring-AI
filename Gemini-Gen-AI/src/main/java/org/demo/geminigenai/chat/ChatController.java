@@ -1,6 +1,7 @@
 package org.demo.geminigenai.chat;
 
 import org.demo.geminigenai.chat.entity.ActorFilms;
+import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.core.ParameterizedTypeReference;
@@ -46,9 +47,28 @@ public class ChatController {
     }
 
     @GetMapping("/entity")
-    public ActorFilms  getActorFilms() {
+    public ActorFilms getActorFilms() {
         return chatClient.prompt()
                 .user("Generate the filmography of actors Rajpal Yadav")
+                .call()
+                .entity(ActorFilms.class);
+    }
+
+    /*
+    * In the above example, Spring AI appends format instruction to the user text to match the mentioned entity
+    * eg: "Respond in JSON format matching the following schema" followed by the JSON for ActorFilms.class
+    * Since this is part of the user instructions, the model can include text like "Sure, here is the JSON ..."
+    *
+    * By using advisors, Spring AI uses capability of the model itself eg: OpenAI's "JSON Mode" or "Structured Outputs," or Gemini's response schema
+    * The schema is sent as a specific parameter in the API request body.
+    * The model’s output is constrained at the token-generation level to ensure it matches the Java class structure.
+    *
+    * */
+    @GetMapping("/entity/advisor")
+    public ActorFilms getActorFilmsViaAdvisor() {
+        return chatClient.prompt()
+                .user("Generate the filmography of actors Rajpal Yadav")
+                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
                 .entity(ActorFilms.class);
     }
@@ -57,7 +77,8 @@ public class ChatController {
     public List<ActorFilms> getActorFilmsList() {
         return chatClient.prompt()
                 .user("Generate the filmography of actors Rajpal Yadav, Shahrukh Khan, Akshay Kumar")
+                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
-                .entity(new ParameterizedTypeReference<List<ActorFilms>>(){});
+                .entity(new ParameterizedTypeReference<>(){});
     }
 }
