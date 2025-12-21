@@ -3,6 +3,7 @@ package org.demo.geminigenai.chat;
 import org.demo.geminigenai.chat.entity.ActorFilms;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +50,7 @@ public class ChatController {
     @GetMapping("/entity")
     public ActorFilms getActorFilms() {
         return chatClient.prompt()
-                .user("Generate the filmography of actors Rajpal Yadav")
+                .user("Generate top 5 films of actor Rajpal Yadav")
                 .call()
                 .entity(ActorFilms.class);
     }
@@ -67,7 +68,7 @@ public class ChatController {
     @GetMapping("/entity/advisor")
     public ActorFilms getActorFilmsViaAdvisor() {
         return chatClient.prompt()
-                .user("Generate the filmography of actors Rajpal Yadav")
+                .user("Generate top 5 films of actor Rajpal Yadav")
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
                 .entity(ActorFilms.class);
@@ -76,9 +77,21 @@ public class ChatController {
     @GetMapping("/entities")
     public List<ActorFilms> getActorFilmsList() {
         return chatClient.prompt()
-                .user("Generate the filmography of actors Rajpal Yadav, Shahrukh Khan, Akshay Kumar")
+                .user("Generate top 5 films of actor Rajpal Yadav, Shahrukh Khan, Akshay Kumar")
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
                 .entity(new ParameterizedTypeReference<>(){});
+    }
+
+    /*
+    * This gives both the `ChatReponse` and entity response
+    * */
+    @GetMapping("responseEntity")
+    public ResponseEntity<ChatResponse, ActorFilms> getActorFilmsResponseEntity() {
+        return chatClient.prompt()
+                .user("Generate top 5 films of actor Rajpal Yadav")
+                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
+                .call()
+                .responseEntity(ActorFilms.class);
     }
 }
