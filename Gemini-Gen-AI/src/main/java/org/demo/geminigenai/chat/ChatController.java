@@ -4,6 +4,7 @@ import org.demo.geminigenai.chat.entity.ActorFilms;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.core.ParameterizedTypeReference;
@@ -20,7 +21,10 @@ public class ChatController {
     private final ChatClient chatClient;
 
     public ChatController(ChatClient.Builder builder) {
-        this.chatClient = builder.build();
+        this.chatClient = builder
+//        SimpleLoggerAdvisor can also be added during the prompt call using the .advisors() method
+                .defaultAdvisors(new SimpleLoggerAdvisor())
+                .build();
     }
 
     @GetMapping("/chat")

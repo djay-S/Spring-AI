@@ -11,3 +11,11 @@ spring:
         chat:
           options:
             model: gemini-2.0-flash #default
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: DEBUG
