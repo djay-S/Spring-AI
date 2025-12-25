@@ -17,12 +17,14 @@
 
 	<modules>
 		<module>Open-AI</module>
+		<module>Gemini-Gen-AI</module>
 	</modules>
 
 	<properties>
 		<java.version>21</java.version>
 		<lombok.version>1.18.38</lombok.version>
 		<spring-ai.version>1.1.2</spring-ai.version>
+		<spotless-maven-plugin.version>2.44.4</spotless-maven-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -37,4 +39,31 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless-maven-plugin.version}</version>
+				<configuration>
+					<java>
+						<importOrder />
+						<removeUnusedImports />
+						<palantirJavaFormat>
+							<version>2.35.0</version>
+						</palantirJavaFormat>
+						<formatAnnotations />
+					</java>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
