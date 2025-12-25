@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.demo.geminigenai.chat.entity.ActorFilms;
+import org.demo.geminigenai.chat.entity.Student;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
@@ -113,6 +114,16 @@ public class ChatController {
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
                 .entity(new ParameterizedTypeReference<>() {});
+    }
+
+    @GetMapping("/generate/student")
+    public List<Student> getStudents() {
+        return chatClient
+                .prompt()
+                .user("Give me list of 5 students")
+                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
+                .call()
+                .entity(new ParameterizedTypeReference<List<Student>>() {});
     }
 
     /*
