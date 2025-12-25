@@ -1,5 +1,8 @@
 package org.demo.geminigenai.chat;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import org.demo.geminigenai.chat.entity.ActorFilms;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
@@ -12,68 +15,58 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-
 @RestController
 public class ChatController {
     private final ChatClient chatClient;
 
     public ChatController(ChatClient.Builder builder) {
         this.chatClient = builder
-//        SimpleLoggerAdvisor can also be added during the prompt call using the .advisors() method
+                //        SimpleLoggerAdvisor can also be added during the prompt call using the .advisors() method
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 .build();
     }
 
     @GetMapping("/chat")
     public String chat() {
-        return chatClient.prompt()
-                .user("What is your name?")
-                .call()
-                .content();
+        return chatClient.prompt().user("What is your name?").call().content();
     }
 
-//    To get the streaming response use: curl -N --location 'localhost:8080/stream'
+    //    To get the streaming response use: curl -N --location 'localhost:8080/stream'
     @GetMapping("/stream")
     Flux<String> stream() {
-        return chatClient.prompt()
-                .user("I am visiting Hyderabad. Can you suggest me 10 restaurants to visit.")
-                .stream()
+        return chatClient.prompt().user("I am visiting Hyderabad. Can you suggest me 10 restaurants to visit.").stream()
                 .content()
                 .delayElements(Duration.ofSeconds(1));
     }
 
     @GetMapping("/response")
     public ChatResponse getChatResponse() {
-        return chatClient.prompt()
-                .user("What is the current timestamp?")
-                .call()
-                .chatResponse();
+        return chatClient.prompt().user("What is the current timestamp?").call().chatResponse();
     }
 
     @GetMapping("/entity")
     public ActorFilms getActorFilms() {
-        return chatClient.prompt()
+        return chatClient
+                .prompt()
                 .user("Generate top 5 films of actor Rajpal Yadav")
                 .call()
                 .entity(ActorFilms.class);
     }
 
     /*
-    * In the above example, Spring AI appends format instruction to the user text to match the mentioned entity
-    * eg: "Respond in JSON format matching the following schema" followed by the JSON for ActorFilms.class
-    * Since this is part of the user instructions, the model can include text like "Sure, here is the JSON ..."
-    *
-    * By using advisors, Spring AI uses capability of the model itself eg: OpenAI's "JSON Mode" or "Structured Outputs," or Gemini's response schema
-    * The schema is sent as a specific parameter in the API request body.
-    * The model’s output is constrained at the token-generation level to ensure it matches the Java class structure.
-    *
-    * */
+     * In the above example, Spring AI appends format instruction to the user text to match the mentioned entity
+     * eg: "Respond in JSON format matching the following schema" followed by the JSON for ActorFilms.class
+     * Since this is part of the user instructions, the model can include text like "Sure, here is the JSON ..."
+     *
+     * By using advisors, Spring AI uses capability of the model itself eg: OpenAI's "JSON Mode" or "Structured Outputs," or Gemini's response schema
+     * The schema is sent as a specific parameter in the API request body.
+     * The model’s output is constrained at the token-generation level to ensure it matches the Java class structure.
+     *
+     * */
     @GetMapping("/entity/advisor")
     public ActorFilms getActorFilmsViaAdvisor() {
-        return chatClient.prompt()
+        return chatClient
+                .prompt()
                 .user("Generate top 5 films of actor Rajpal Yadav")
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
@@ -82,19 +75,21 @@ public class ChatController {
 
     @GetMapping("/entities")
     public List<ActorFilms> getActorFilmsList() {
-        return chatClient.prompt()
+        return chatClient
+                .prompt()
                 .user("Generate top 5 films of actor Rajpal Yadav, Shahrukh Khan, Akshay Kumar")
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
-                .entity(new ParameterizedTypeReference<>(){});
+                .entity(new ParameterizedTypeReference<>() {});
     }
 
     /*
-    * This gives both the `ChatReponse` and entity response
-    * */
+     * This gives both the `ChatReponse` and entity response
+     * */
     @GetMapping("responseEntity")
     public ResponseEntity<ChatResponse, ActorFilms> getActorFilmsResponseEntity() {
-        return chatClient.prompt()
+        return chatClient
+                .prompt()
                 .user("Generate top 5 films of actor Rajpal Yadav")
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
@@ -102,39 +97,40 @@ public class ChatController {
     }
 
     /*
-    * `ChatClient` fluent API allows to provide user and system text as templates with variables which are replaced at runtime.
-    * ChatClient uses PromptTemplate class to handle user/system text and replace the variables with values provided at runtime.
-    * By default Spring uses StTemplateRenderer
-    * We can use NoOpTemplateRenderer for cases where no template processing is desired.
-    * */
+     * `ChatClient` fluent API allows to provide user and system text as templates with variables which are replaced at runtime.
+     * ChatClient uses PromptTemplate class to handle user/system text and replace the variables with values provided at runtime.
+     * By default Spring uses StTemplateRenderer
+     * We can use NoOpTemplateRenderer for cases where no template processing is desired.
+     * */
     @GetMapping("/promptTemplate")
     public List<ActorFilms> getActorFilmsByPromptTemplate() {
-        return chatClient.prompt()
-                .user(u -> u
-                        .text("Generate top 5 films of actors {actor}")
-//                        .param("actor", "Rajpal Yadav")
-//                                .param("actor", List.of("Rajpal Yadav", "Shahrukh Khan")))
-                                .params(Map.of("actor", List.of("Rajpal Yadav", "Shahrukh Khan")))
-)
+        return chatClient
+                .prompt()
+                .user(u -> u.text("Generate top 5 films of actors {actor}")
+                        //                        .param("actor", "Rajpal Yadav")
+                        //                                .param("actor", List.of("Rajpal Yadav", "Shahrukh Khan")))
+                        .params(Map.of("actor", List.of("Rajpal Yadav", "Shahrukh Khan"))))
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
-                .entity(new ParameterizedTypeReference<>(){});
+                .entity(new ParameterizedTypeReference<>() {});
     }
 
     /*
-    * We can provide custom Template renderer by implementing the `TemplateRenderer` interface
-    * We can configure StTemplateRenderer using its builder() method
-    * */
+     * We can provide custom Template renderer by implementing the `TemplateRenderer` interface
+     * We can configure StTemplateRenderer using its builder() method
+     * */
     @GetMapping("/promptTemplate/custom")
     public List<ActorFilms> getActorFilmsByPromptTemplateCustom() {
-        return chatClient.prompt()
-                .user(u -> u
-                        .text("Generate top 5 films of actors <actor>")
-                        .param("actor", List.of("Rajpal Yadav", "Shahrukh Khan"))
-                )
-                .templateRenderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
+        return chatClient
+                .prompt()
+                .user(u -> u.text("Generate top 5 films of actors <actor>")
+                        .param("actor", List.of("Rajpal Yadav", "Shahrukh Khan")))
+                .templateRenderer(StTemplateRenderer.builder()
+                        .startDelimiterToken('<')
+                        .endDelimiterToken('>')
+                        .build())
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
-                .entity(new ParameterizedTypeReference<>(){});
+                .entity(new ParameterizedTypeReference<>() {});
     }
 }
