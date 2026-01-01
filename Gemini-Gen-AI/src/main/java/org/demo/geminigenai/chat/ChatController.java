@@ -10,7 +10,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -124,24 +123,5 @@ public class ChatController {
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
                 .entity(new ParameterizedTypeReference<List<Student>>() {});
-    }
-
-    /*
-     * We can provide custom Template renderer by implementing the `TemplateRenderer` interface
-     * We can configure StTemplateRenderer using its builder() method
-     * */
-    @GetMapping("/promptTemplate/custom")
-    public List<ActorFilms> getActorFilmsByPromptTemplateCustom() {
-        return chatClient
-                .prompt()
-                .user(u -> u.text("Generate top 5 films of actors <actor>")
-                        .param("actor", List.of("Rajpal Yadav", "Shahrukh Khan")))
-                .templateRenderer(StTemplateRenderer.builder()
-                        .startDelimiterToken('<')
-                        .endDelimiterToken('>')
-                        .build())
-                .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
-                .call()
-                .entity(new ParameterizedTypeReference<>() {});
     }
 }
