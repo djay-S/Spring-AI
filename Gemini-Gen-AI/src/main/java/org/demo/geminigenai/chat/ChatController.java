@@ -9,7 +9,11 @@ import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
+import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,12 +22,14 @@ import reactor.core.publisher.Flux;
 @RestController
 public class ChatController {
     private final ChatClient chatClient;
+    private final ChatModel chatModel;
 
-    public ChatController(ChatClient.Builder builder) {
+    public ChatController(ChatClient.Builder builder, ChatModel chatModel) {
         this.chatClient = builder
                 //        SimpleLoggerAdvisor can also be added during the prompt call using the .advisors() method
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 .build();
+        this.chatModel = chatModel;
     }
 
     @GetMapping("/chat")
@@ -51,6 +57,25 @@ public class ChatController {
                 .user("Generate top 5 films of actor Rajpal Yadav")
                 .call()
                 .entity(ActorFilms.class);
+    }
+
+    @GetMapping("/entity/chat-model")
+    public ActorFilms getActorFilmsLowLevel() throws Exception {
+        BeanOutputConverter<ActorFilms> beanOutputConverter = new BeanOutputConverter<>(ActorFilms.class);
+        final String format = beanOutputConverter.getFormat();
+        final String template = "Generate top 5 films of actor Rajpal Yadav. {format}";
+        final Generation generation = chatModel
+                .call(PromptTemplate.builder()
+                        .template(template)
+                        .variables(Map.of("format", format))
+                        .build()
+                        .create())
+                .getResult();
+        String response = generation.getOutput().getText();
+        if (response == null) {
+            throw new Exception();
+        }
+        return beanOutputConverter.convert(response);
     }
 
     /*
