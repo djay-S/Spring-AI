@@ -6,15 +6,25 @@ import org.demo.geminigenai.chat.entity.ActorFilms;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.template.st.StTemplateRenderer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/promptTemplate")
+@RestController
+@RequestMapping("/promptTemplate")
 public class PromptTemplateController {
 
     private final ChatClient chatClient;
+
+    @Value("classpath:/prompts/joke-prompt.st")
+    private Resource jokePrompt;
 
     public PromptTemplateController(ChatClient.Builder builder) {
         this.chatClient = builder.defaultAdvisors(new SimpleLoggerAdvisor()).build();
@@ -56,6 +66,15 @@ public class PromptTemplateController {
                 .advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
                 .call()
                 .entity(new ParameterizedTypeReference<>() {});
+    }
+
+    @GetMapping("/resource")
+    public String getJokes(
+            @RequestParam(value = "adjective", defaultValue = "funny") final String adjective,
+            @RequestParam(value = "topic", defaultValue = "programming") final String topic) {
+        final PromptTemplate promptTemplate = new PromptTemplate(jokePrompt);
+        final Prompt prompt = promptTemplate.create(Map.of("adjective", adjective, "topic", topic));
+        return chatClient.prompt(prompt).call().content();
     }
 
     @GetMapping("/role")
