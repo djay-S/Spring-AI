@@ -149,4 +149,20 @@ public class ChatController {
                 .call()
                 .entity(new ParameterizedTypeReference<List<Student>>() {});
     }
+
+    @GetMapping("/generate/student/chat-model")
+    public Student[] getStudentsChatModel() throws Exception {
+        final BeanOutputConverter<Student[]> beanOutputConverter = new BeanOutputConverter<>(Student[].class);
+//        final BeanOutputConverter<Student[]> beanOutputConverter1 = new BeanOutputConverter<>(new ParameterizedTypeReference<Student[]>() {});
+        final String format = beanOutputConverter.getFormat();
+        final String template = "Give me list of 5 students. {format}";
+        final Generation generation = chatModel.call(
+                PromptTemplate.builder().template(template).variables(Map.of("format", format)).build().create()
+        ).getResult();
+        String text = generation.getOutput().getText();
+        if (text == null) {
+            throw new Exception();
+        }
+        return beanOutputConverter.convert(text);
+    }
 }

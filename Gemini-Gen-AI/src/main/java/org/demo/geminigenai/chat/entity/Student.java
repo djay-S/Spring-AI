@@ -13,5 +13,5 @@ public record Student(
         String gender,
         String classRoom,
         String studentId,
-        List<String> subjects,
+        List<Subject> subjects,
         List<ReportCard> reportCards) {}
