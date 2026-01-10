@@ -11,6 +11,10 @@ spring:
         chat:
           options:
             model: gemini-2.0-flash #default
+  datasource:
+    url: '${DB_URL:jdbc:postgresql://localhost:15432/postgres}'
+    username: '${DB_USERNAME:postgres}'
+    password: '${DB_PASSWORD:postgres}'
 logging:
   level:
     org:
