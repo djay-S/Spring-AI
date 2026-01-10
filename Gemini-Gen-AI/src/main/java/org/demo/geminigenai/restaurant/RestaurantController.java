@@ -12,7 +12,8 @@ public class RestaurantController {
 
     private final ChatClient chatClient;
 
-    private final String SYSTEM_PROMPT = "You are a waiter at 'Desi Restaurant'. Your task is to take orders from customers and suggest them dishes based on customer preference and restaurant menu.";
+    private final String SYSTEM_PROMPT =
+            "You are a waiter at 'Desi Restaurant'. Your task is to take orders from customers and suggest them dishes based on customer preference and restaurant menu.";
 
     public RestaurantController(ChatClient.Builder builder) {
         this.chatClient = builder.build();
@@ -20,10 +21,6 @@ public class RestaurantController {
 
     @GetMapping("/assistant")
     public String inquire(@RequestParam(value = "question", defaultValue = "Hi") final String question) {
-        return chatClient.prompt()
-                .system(SYSTEM_PROMPT)
-                .user(question)
-                .call()
-                .content();
+        return chatClient.prompt().system(SYSTEM_PROMPT).user(question).call().content();
     }
 }
