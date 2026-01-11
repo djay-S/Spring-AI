@@ -29,3 +29,10 @@ logging:
           chat:
             client:
               advisor: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    health:
+      show-details: always
