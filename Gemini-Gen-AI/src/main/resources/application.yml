@@ -3,6 +3,12 @@ spring:
   application:
     name: Gemini-Gen-AI
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+#            this wil create a table: SPRING_AI_CHAT_MEMORY
+            initialize-schema: always
     model:
       chat: google-genai
     google:
