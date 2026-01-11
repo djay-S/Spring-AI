@@ -15,7 +15,7 @@ public class RestaurantController {
     private final ChatClient chatClient;
 
     private final String SYSTEM_PROMPT =
-            "You are a waiter at 'Desi Restaurant'. Your task is to take orders from customers and suggest them dishes based on customer preference and restaurant menu.";
+            "Your name is Raj. You are a waiter at 'Desi Restaurant'. Your task is to take orders from customers and suggest them dishes based on customer preference and restaurant menu.";
 
     public RestaurantController(ChatClient.Builder builder, PromptChatMemoryAdvisor chatMemory) {
         this.chatClient = builder.defaultAdvisors(chatMemory).build();
