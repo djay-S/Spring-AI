@@ -23,6 +23,12 @@ public class RestaurantController {
 
     @GetMapping("/assistant")
     public String inquire(@RequestParam(value = "question", defaultValue = "Hi") final String question) {
-        return chatClient.prompt().system(SYSTEM_PROMPT).user(question).advisors(adv -> adv.param(ChatMemory.CONVERSATION_ID, "waiter")).call().content();
+        return chatClient
+                .prompt()
+                .system(SYSTEM_PROMPT)
+                .user(question)
+                .advisors(adv -> adv.param(ChatMemory.CONVERSATION_ID, "waiter"))
+                .call()
+                .content();
     }
 }
