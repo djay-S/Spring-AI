@@ -9,11 +9,21 @@ spring:
           jdbc:
 #            this wil create a table: SPRING_AI_CHAT_MEMORY
             initialize-schema: always
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        dimensions: 768
+        schema: public
     model:
       chat: google-genai
     google:
       genai:
         api-key: ${OPEN_AI_API_KEY}
+        embedding:
+          text:
+            options:
+              model: text-embedding-004
+          api-key: ${OPEN_AI_API_KEY}
         chat:
           options:
             model: gemini-2.0-flash #default
