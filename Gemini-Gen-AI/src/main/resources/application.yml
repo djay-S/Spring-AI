@@ -26,7 +26,7 @@ spring:
           api-key: ${OPEN_AI_API_KEY}
         chat:
           options:
-            model: gemini-2.0-flash #default
+            model: gemini-2.5-flash #default: gemini-2.0-flash
   datasource:
     url: '${DB_URL:jdbc:postgresql://localhost:15432/postgres}'
     username: '${DB_USERNAME:postgres}'
