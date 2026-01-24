@@ -10,7 +10,7 @@ spring:
         api-key: ${OPEN_AI_API_KEY}
         chat:
           options:
-            model: gemini-2.0-flash #default
+            model: gemini-2.5-flash #default: gemini-2.0-flash
 logging:
   level:
     org:
